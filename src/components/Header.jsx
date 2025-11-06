@@ -2,6 +2,8 @@ import React from 'react';
 import { Book, Upload, Plus } from 'lucide-react';
 
 export default function Header({ onImportClick, onAddClick }) {
+  const isCloudMode = typeof window !== 'undefined' && window.storage;
+  
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl border-b bg-gray-900/80 border-gray-700">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -11,8 +13,17 @@ export default function Header({ onImportClick, onAddClick }) {
             <div>
               <h1 className="text-3xl font-bold text-white">BookTime</h1>
               <p className="text-xs text-teal-400 flex items-center gap-1">
-                <span>☁️</span>
-                <span>Synchronisé dans le cloud</span>
+                {isCloudMode ? (
+                  <>
+                    <span>☁️</span>
+                    <span>Synchronisé dans le cloud</span>
+                  </>
+                ) : (
+                  <>
+                    <span>💾</span>
+                    <span>Sauvegarde locale</span>
+                  </>
+                )}
               </p>
             </div>
           </div>
