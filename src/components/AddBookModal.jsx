@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader } from 'lucide-react';
 import { getCoverUrl } from '../utils/imageGenerator';
 
 export default function AddBookModal({ onClose, onAdd }) {
@@ -13,13 +13,24 @@ export default function AddBookModal({ onClose, onAdd }) {
     genre: '', 
     site: ''
   });
+  const [searching, setSearching] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (newBook.title) {
+      setSearching(true);
+      
+      // Si pas d'image fournie, chercher automatiquement
+      let coverUrl = newBook.cover;
+      if (!coverUrl) {
+        coverUrl = await getCoverUrl(newBook.title);
+      }
+      
       onAdd({
         ...newBook,
-        cover: newBook.cover || getCoverUrl(newBook.title)
+        cover: coverUrl
       });
+      
+      setSearching(false);
     }
   };
 
@@ -57,11 +68,13 @@ export default function AddBookModal({ onClose, onAdd }) {
           />
           <input
             type="text"
-            placeholder="URL de l'image (optionnel)"
+            placeholder="URL de l'image (optionnel - auto si vide)"
             value={newBook.cover}
             onChange={(e) => setNewBook({...newBook, cover: e.target.value})}
             className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white placeholder-gray-500 text-sm"
           />
+          <p className="text-xs text-gray-500">💡 Laissez vide pour rechercher automatiquement</p>
+          
           <select
             value={newBook.status}
             onChange={(e) => setNewBook({...newBook, status: e.target.value})}
@@ -83,11 +96,18 @@ export default function AddBookModal({ onClose, onAdd }) {
           
           <button
             onClick={handleAdd}
-            disabled={!newBook.title}
-            className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed hover:from-green-500 hover:to-emerald-500 transition-all"
+            disabled={!newBook.title || searching}
+            className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed hover:from-green-500 hover:to-emerald-500 transition-all flex items-center justify-center gap-2"
             style={{ boxShadow: '0 0 30px rgba(16, 185, 129, 0.5)' }}
           >
-            Ajouter
+            {searching ? (
+              <>
+                <Loader className="w-5 h-5 animate-spin" />
+                Recherche de la couverture...
+              </>
+            ) : (
+              'Ajouter'
+            )}
           </button>
         </div>
       </div>

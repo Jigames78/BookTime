@@ -1,4 +1,4 @@
-import { getCoverUrl } from './imageGenerator';
+import { getCoverUrlSync, updateCoverAsync } from './imageGenerator';
 
 export const parseImportText = (importText, importStatus) => {
   const lines = importText.split('\n');
@@ -22,17 +22,24 @@ export const parseImportText = (importText, importStatus) => {
     }
     
     if (title) {
-      newBooks.push({
+      const book = {
         id: Date.now() + Math.random(),
         title,
         episode,
         site: '',
         status: importStatus,
-        cover: getCoverUrl(title),
+        cover: getCoverUrlSync(title), // Image temporaire
         rating: 0,
         author: '',
         genre: ''
+      };
+      
+      // Chercher la vraie couverture en arrière-plan
+      updateCoverAsync(title).then(realCover => {
+        book.cover = realCover;
       });
+      
+      newBooks.push(book);
     }
   });
   

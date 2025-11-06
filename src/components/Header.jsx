@@ -8,7 +8,13 @@ export default function Header({ onImportClick, onAddClick }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Book className="w-9 h-9 text-teal-400" />
-            <h1 className="text-3xl font-bold text-white">BookTime</h1>
+            <div>
+              <h1 className="text-3xl font-bold text-white">BookTime</h1>
+              <p className="text-xs text-teal-400 flex items-center gap-1">
+                <span>☁️</span>
+                <span>Synchronisé dans le cloud</span>
+              </p>
+            </div>
           </div>
           <div className="flex gap-3">
             <button

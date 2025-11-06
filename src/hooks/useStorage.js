@@ -3,16 +3,18 @@ import { useState, useEffect } from 'react';
 export const useStorage = (key, initialValue) => {
   const [data, setData] = useState(initialValue);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
       try {
-        const savedData = localStorage.getItem(key);
-        if (savedData) {
-          setData(JSON.parse(savedData));
+        // Utilisation du stockage cloud partagé
+        const result = await window.storage.get(key, true);
+        if (result && result.value) {
+          setData(JSON.parse(result.value));
         }
-      } catch (error) {
-        console.log('Pas de données existantes, utilisation des valeurs par défaut');
+      } catch (err) {
+        console.log('Première utilisation ou données non trouvées');
       } finally {
         setLoading(false);
       }
@@ -20,15 +22,18 @@ export const useStorage = (key, initialValue) => {
     loadData();
   }, [key]);
 
-  const saveData = (newData) => {
+  const saveData = async (newData) => {
     try {
-      localStorage.setItem(key, JSON.stringify(newData));
+      // Sauvegarde dans le cloud (shared: true)
+      await window.storage.set(key, JSON.stringify(newData), true);
       setData(newData);
-    } catch (error) {
-      console.error('Erreur de sauvegarde:', error);
+      setError(null);
+    } catch (err) {
+      console.error('Erreur de sauvegarde:', err);
+      setError('Erreur lors de la sauvegarde');
       alert('Erreur lors de la sauvegarde des données');
     }
   };
 
-  return [data, saveData, loading];
+  return [data, saveData, loading, error];
 };
