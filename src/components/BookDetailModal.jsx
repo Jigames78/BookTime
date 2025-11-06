@@ -1,53 +1,44 @@
 import React, { useState } from 'react';
-import { X, Trash2 } from 'lucide-react';
-import { themes } from '../utils/themes';
+import { X, Trash2, RefreshCw } from 'lucide-react';
+import { getCoverUrl } from '../utils/imageGenerator';
 
-export default function BookDetailModal({ book, onClose, onUpdate, onDelete, theme }) {
+export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
   const [editedBook, setEditedBook] = useState(book);
   const [imageUrl, setImageUrl] = useState(book.cover);
-  const currentTheme = themes[theme];
 
   const handleSave = () => {
     onUpdate(book.id, { ...editedBook, cover: imageUrl });
     onClose();
   };
 
+  const handleGenerateNewCover = () => {
+    setImageUrl(getCoverUrl(editedBook.title + Math.random()));
+  };
+
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-lg"
-      style={{ background: theme === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)' }}
-      onClick={onClose}
-    >
-      <div 
-        className="rounded-3xl p-6 max-w-2xl w-full border max-h-[90vh] overflow-y-auto"
-        style={{
-          background: currentTheme.cardBg,
-          borderColor: currentTheme.border,
-          boxShadow: theme === 'dark' 
-            ? '0 0 60px rgba(0, 0, 0, 0.8), 0 20px 60px rgba(0,0,0,0.8)'
-            : '0 0 60px rgba(0, 0, 0, 0.2), 0 20px 60px rgba(0,0,0,0.1)'
-        }} 
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-lg bg-black/80" onClick={onClose}>
+      <div className="rounded-3xl p-6 max-w-2xl w-full border border-gray-700 bg-gray-800/95 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex gap-6">
           <div className="flex-shrink-0">
             <img
               src={imageUrl}
               alt={editedBook.title}
-              className="w-48 h-72 object-cover rounded-2xl shadow-2xl border"
-              style={{ borderColor: currentTheme.border }}
+              className="w-48 h-72 object-cover rounded-2xl shadow-2xl border border-gray-700"
             />
             <input
               type="text"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="URL de l'image"
-              className={`w-48 mt-3 border rounded-lg px-3 py-2 text-xs ${currentTheme.text}`}
-              style={{
-                background: currentTheme.inputBg,
-                borderColor: currentTheme.border
-              }}
+              className="w-48 mt-3 border border-gray-700 rounded-lg px-3 py-2 text-xs bg-gray-900/50 text-white placeholder-gray-500"
             />
+            <button
+              onClick={handleGenerateNewCover}
+              className="w-48 mt-2 flex items-center justify-center gap-2 border border-gray-700 rounded-lg px-3 py-2 text-xs bg-gray-900/50 text-gray-400 hover:text-white hover:border-teal-500 transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Générer nouvelle image
+            </button>
           </div>
           
           <div className="flex-1">
@@ -56,39 +47,30 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete, the
                 type="text"
                 value={editedBook.title}
                 onChange={(e) => setEditedBook({...editedBook, title: e.target.value})}
-                className={`text-3xl font-bold bg-transparent border-b-2 pr-4 focus:outline-none ${currentTheme.text}`}
-                style={{ borderColor: currentTheme.border }}
+                className="text-3xl font-bold bg-transparent border-b-2 border-gray-700 pr-4 focus:outline-none focus:border-teal-500 text-white"
               />
-              <button onClick={onClose} className={currentTheme.textSecondary + ' hover:opacity-70'}>
+              <button onClick={onClose} className="text-gray-400 hover:text-white">
                 <X className="w-6 h-6" />
               </button>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className={`${currentTheme.textSecondary} text-sm mb-2 block`}>Auteur</label>
+                <label className="text-gray-400 text-sm mb-2 block">Auteur</label>
                 <input
                   type="text"
                   value={editedBook.author}
                   onChange={(e) => setEditedBook({...editedBook, author: e.target.value})}
-                  className={`w-full border rounded-xl px-4 py-3 ${currentTheme.text}`}
-                  style={{
-                    background: currentTheme.inputBg,
-                    borderColor: currentTheme.border
-                  }}
+                  className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
                 />
               </div>
 
               <div>
-                <label className={`${currentTheme.textSecondary} text-sm mb-2 block`}>Statut</label>
+                <label className="text-gray-400 text-sm mb-2 block">Statut</label>
                 <select
                   value={editedBook.status}
                   onChange={(e) => setEditedBook({...editedBook, status: e.target.value})}
-                  className={`w-full border rounded-xl px-4 py-3 ${currentTheme.text}`}
-                  style={{
-                    background: currentTheme.inputBg,
-                    borderColor: currentTheme.border
-                  }}
+                  className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
                 >
                   <option value="reading">En cours</option>
                   <option value="finished">Terminé</option>
@@ -97,60 +79,44 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete, the
               </div>
 
               <div>
-                <label className={`${currentTheme.textSecondary} text-sm mb-2 block`}>Épisode</label>
+                <label className="text-gray-400 text-sm mb-2 block">Épisode</label>
                 <input
                   type="text"
                   value={editedBook.episode}
                   onChange={(e) => setEditedBook({...editedBook, episode: e.target.value})}
-                  className={`w-full border rounded-xl px-4 py-3 ${currentTheme.text}`}
-                  style={{
-                    background: currentTheme.inputBg,
-                    borderColor: currentTheme.border
-                  }}
+                  className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
                 />
               </div>
 
               <div>
-                <label className={`${currentTheme.textSecondary} text-sm mb-2 block`}>Genre</label>
+                <label className="text-gray-400 text-sm mb-2 block">Genre</label>
                 <input
                   type="text"
                   value={editedBook.genre}
                   onChange={(e) => setEditedBook({...editedBook, genre: e.target.value})}
-                  className={`w-full border rounded-xl px-4 py-3 ${currentTheme.text}`}
-                  style={{
-                    background: currentTheme.inputBg,
-                    borderColor: currentTheme.border
-                  }}
+                  className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
                 />
               </div>
 
               <div>
-                <label className={`${currentTheme.textSecondary} text-sm mb-2 block`}>Site web</label>
+                <label className="text-gray-400 text-sm mb-2 block">Site web</label>
                 <input
                   type="text"
                   value={editedBook.site}
                   onChange={(e) => setEditedBook({...editedBook, site: e.target.value})}
-                  className={`w-full border rounded-xl px-4 py-3 ${currentTheme.text}`}
-                  style={{
-                    background: currentTheme.inputBg,
-                    borderColor: currentTheme.border
-                  }}
+                  className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
                 />
               </div>
 
               <div>
-                <label className={`${currentTheme.textSecondary} text-sm mb-2 block`}>Note (0-10)</label>
+                <label className="text-gray-400 text-sm mb-2 block">Note (0-10)</label>
                 <input
                   type="number"
                   min="0"
                   max="10"
                   value={editedBook.rating}
                   onChange={(e) => setEditedBook({...editedBook, rating: parseInt(e.target.value) || 0})}
-                  className={`w-full border rounded-xl px-4 py-3 ${currentTheme.text}`}
-                  style={{
-                    background: currentTheme.inputBg,
-                    borderColor: currentTheme.border
-                  }}
+                  className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
                 />
               </div>
               
