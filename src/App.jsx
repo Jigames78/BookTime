@@ -8,6 +8,7 @@ import BookGrid from './components/BookGrid';
 import ImportModal from './components/ImportModal';
 import AddBookModal from './components/AddBookModal';
 import BookDetailModal from './components/BookDetailModal';
+import UndoImportModal from './components/UndoImportModal'; // ← NOUVEAU
 
 export default function App() {
   const {
@@ -25,6 +26,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showUndoModal, setShowUndoModal] = useState(false); // ← NOUVEAU
   const [selectedBook, setSelectedBook] = useState(null);
 
   const handleAddBook = async (book) => {
@@ -63,17 +65,14 @@ export default function App() {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (book.author && book.author.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    // Si onglet "Autre", montrer seulement les "autre"
     if (activeTab === 'autre') {
       return matchesSearch && book.status === 'autre';
     }
     
-    // Si onglet "Tous", exclure les "autre"
     if (activeTab === 'all') {
       return matchesSearch && book.status !== 'autre';
     }
     
-    // Sinon filtrer normalement par statut
     const matchesTab = book.status === activeTab;
     return matchesSearch && matchesTab;
   });
@@ -113,6 +112,7 @@ export default function App() {
       <Header 
         onImportClick={() => setShowImportModal(true)}
         onAddClick={() => setShowAddModal(true)}
+        onUndoClick={() => setShowUndoModal(true)} // ← NOUVEAU
       />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -142,6 +142,12 @@ export default function App() {
         <AddBookModal 
           onClose={() => setShowAddModal(false)}
           onAdd={handleAddBook}
+        />
+      )}
+
+      {showUndoModal && ( // ← NOUVEAU
+        <UndoImportModal 
+          onClose={() => setShowUndoModal(false)}
         />
       )}
 

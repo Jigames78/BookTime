@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trash2, RefreshCw, Search } from 'lucide-react';
+import { X, Trash2, Search } from 'lucide-react'; // ← RETIRER RefreshCw
 import { getCoverUrl } from '../utils/imageGenerator';
 
 export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
@@ -10,10 +10,6 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
   const handleSave = () => {
     onUpdate(book.id, { ...editedBook, cover: imageUrl });
     onClose();
-  };
-
-  const handleGenerateNewCover = () => {
-    setImageUrl(getCoverUrl(editedBook.title + Math.random()));
   };
 
   const handleSearchRealCover = async () => {
@@ -51,7 +47,7 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
             >
               {searchingCover ? (
                 <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <Search className="w-3.5 h-3.5 animate-spin" />
                   Recherche...
                 </>
               ) : (
@@ -61,13 +57,7 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
                 </>
               )}
             </button>
-            <button
-              onClick={handleGenerateNewCover}
-              className="w-full mt-2 flex items-center justify-center gap-2 border border-gray-700 rounded-lg px-3 py-2 text-xs bg-gray-900/50 text-gray-400 hover:text-white hover:border-teal-500 transition-all"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              Image aléatoire
-            </button>
+            {/* ← BOUTON "Image aléatoire" SUPPRIMÉ */}
           </div>
           
           {/* Colonne informations */}

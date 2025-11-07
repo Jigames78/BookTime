@@ -1,7 +1,7 @@
 import React from 'react';
-import { Book, Upload, Plus, Database } from 'lucide-react';
+import { Book, Upload, Plus, Database, RotateCcw } from 'lucide-react'; // ← NOUVEAU: RotateCcw
 
-export default function Header({ onImportClick, onAddClick }) {
+export default function Header({ onImportClick, onAddClick, onUndoClick }) { // ← NOUVEAU: onUndoClick
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl border-b bg-gray-900/80 border-gray-700">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -18,6 +18,16 @@ export default function Header({ onImportClick, onAddClick }) {
             </div>
           </div>
           <div className="flex gap-3">
+            {/* ← NOUVEAU BOUTON */}
+            <button
+              onClick={onUndoClick}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 transition-all"
+              style={{boxShadow: '0 0 20px rgba(245, 158, 11, 0.5)'}}
+            >
+              <RotateCcw className="w-5 h-5" />
+              <span className="hidden sm:inline">Annuler</span>
+            </button>
+            
             <button
               onClick={onImportClick}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 transition-all"
