@@ -34,6 +34,7 @@ export default function ImportModal({ onClose, onImport }) {
               <option value="finished">Terminés</option>
               <option value="reading">En cours</option>
               <option value="stopped">Arrêtés</option>
+              <option value="autre">Autre</option>
             </select>
           </div>
 
