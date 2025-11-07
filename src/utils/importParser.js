@@ -8,11 +8,13 @@ export const parseImportText = (importText, importStatus) => {
     line = line.trim();
     if (!line || line.startsWith('#')) return;
     
+    // Supprimer les emojis
     line = line.replace(/[📕❤💙💚💛💜💫♥♈♑⛎📯♌♏♎🌍🌀]+/g, '').trim();
     
     let title = '';
     let episode = '';
     
+    // Extraire le titre et l'épisode
     const epMatch = line.match(/^(.+?)\s+ep\s+(.+)$/i);
     if (epMatch) {
       title = epMatch[1].trim();
@@ -23,9 +25,9 @@ export const parseImportText = (importText, importStatus) => {
     
     if (title) {
       const book = {
-        id: Date.now() + Math.random(),
+        // ❌ NE PAS INCLURE d'id ici - Supabase le génère automatiquement
         title,
-        episode,
+        episode: episode || '',
         site: '',
         status: importStatus,
         cover: getCoverUrlSync(title), // Image temporaire
@@ -35,9 +37,8 @@ export const parseImportText = (importText, importStatus) => {
       };
       
       // Chercher la vraie couverture en arrière-plan
-      updateCoverAsync(title).then(realCover => {
-        book.cover = realCover;
-      });
+      // Note: Ceci ne fonctionnera plus car on n'a pas encore l'ID
+      // On laisse juste l'image temporaire
       
       newBooks.push(book);
     }
