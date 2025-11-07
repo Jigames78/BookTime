@@ -1,14 +1,30 @@
 const ANILIST_API = 'https://graphql.anilist.co';
 
-// Recherche sur Anilist (manhwas, mangas, webtoons)
+// Recherche sur Anilist (manhwas, mangas, webtoons) - VERSION AMÉLIORÉE
 export const searchAnilistCover = async (title) => {
+  // Nettoyer le titre pour améliorer la recherche
+  let cleanTitle = title
+    .replace(/\s*ep\s*\d+.*$/i, '') // Supprimer "ep XXX"
+    .replace(/\s*chapter\s*\d+.*$/i, '') // Supprimer "chapter XXX"
+    .replace(/\s*end\s*$/i, '') // Supprimer "End"
+    .trim();
+
   const query = `
     query ($search: String) {
       Media(search: $search, type: MANGA, sort: SEARCH_MATCH) {
+        id
+        title {
+          romaji
+          english
+          native
+        }
         coverImage {
           extraLarge
           large
+          medium
         }
+        format
+        countryOfOrigin
       }
     }
   `;
@@ -22,7 +38,7 @@ export const searchAnilistCover = async (title) => {
       },
       body: JSON.stringify({
         query,
-        variables: { search: title }
+        variables: { search: cleanTitle }
       })
     });
 
@@ -33,10 +49,17 @@ export const searchAnilistCover = async (title) => {
     const data = await response.json();
     
     if (data.data?.Media?.coverImage) {
-      return data.data.Media.coverImage.extraLarge || data.data.Media.coverImage.large;
+      const cover = data.data.Media.coverImage.extraLarge || 
+                    data.data.Media.coverImage.large || 
+                    data.data.Media.coverImage.medium;
+      
+      if (cover) {
+        console.log(`✅ [AniList] Trouvé pour "${cleanTitle}":`, data.data.Media.title.romaji || data.data.Media.title.english);
+        return cover;
+      }
     }
   } catch (error) {
-    console.log('Anilist: couverture non trouvée pour', title, error.message);
+    console.log(`❌ [AniList] Erreur pour "${cleanTitle}":`, error.message);
   }
   return null;
 };
@@ -66,30 +89,41 @@ export const searchGoogleBooksCover = async (title) => {
   return null;
 };
 
-// Génération de fallback (image par défaut si rien trouvé)
+// Génération de fallback avec style manga/anime
 const getFallbackCover = (title) => {
+  // Utiliser des images d'anime/manga par défaut de Lorem Picsum avec IDs spécifiques
+  const animeImageIds = [
+    237, 1084, 1025, 823, 452, 883, 1069, 
+    548, 659, 485, 593, 1074, 929, 447
+  ];
+  
   const seed = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return `https://picsum.photos/seed/${seed}/400/600`;
+  const imageId = animeImageIds[seed % animeImageIds.length];
+  
+  // Ajouter un filtre pour donner un aspect "manga/anime"
+  return `https://picsum.photos/id/${imageId}/400/600?grayscale&blur=1`;
 };
 
 // Fonction principale qui essaie toutes les sources
 export const getCoverUrl = async (title) => {
-  // Essayer d'abord Anilist (meilleur pour manhwas/webtoons)
+  console.log(`🔍 Recherche de couverture pour: "${title}"`);
+  
+  // Essayer d'abord Anilist (meilleur pour manhwas/webtoons/mangas)
   let cover = await searchAnilistCover(title);
   if (cover) {
-    console.log('✅ Couverture trouvée sur Anilist:', title);
+    console.log(`✅ Couverture AniList trouvée pour: ${title}`);
     return cover;
   }
 
-  // Puis Google Books
+  // Puis Google Books (pour les light novels)
   cover = await searchGoogleBooksCover(title);
   if (cover) {
-    console.log('✅ Couverture trouvée sur Google Books:', title);
+    console.log(`✅ Couverture Google Books trouvée pour: ${title}`);
     return cover;
   }
 
-  // Fallback : image générée
-  console.log('⚠️ Utilisation image par défaut pour:', title);
+  // Fallback : image générée avec style manga
+  console.log(`⚠️ Aucune couverture trouvée, utilisation fallback pour: ${title}`);
   return getFallbackCover(title);
 };
 

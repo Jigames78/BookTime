@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { X, Trash2, RefreshCw } from 'lucide-react';
+import { X, Trash2, RefreshCw, Search } from 'lucide-react';
 import { getCoverUrl } from '../utils/imageGenerator';
 
 export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
   const [editedBook, setEditedBook] = useState(book);
   const [imageUrl, setImageUrl] = useState(book.cover);
+  const [searchingCover, setSearchingCover] = useState(false);
 
   const handleSave = () => {
     onUpdate(book.id, { ...editedBook, cover: imageUrl });
@@ -13,6 +14,13 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
 
   const handleGenerateNewCover = () => {
     setImageUrl(getCoverUrl(editedBook.title + Math.random()));
+  };
+
+  const handleSearchRealCover = async () => {
+    setSearchingCover(true);
+    const realCover = await getCoverUrl(editedBook.title);
+    setImageUrl(realCover);
+    setSearchingCover(false);
   };
 
   return (
@@ -33,11 +41,28 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
               className="w-48 mt-3 border border-gray-700 rounded-lg px-3 py-2 text-xs bg-gray-900/50 text-white placeholder-gray-500"
             />
             <button
+              onClick={handleSearchRealCover}
+              disabled={searchingCover}
+              className="w-48 mt-2 flex items-center justify-center gap-2 border border-teal-600 rounded-lg px-3 py-2 text-xs bg-teal-900/30 text-teal-400 hover:text-teal-300 hover:bg-teal-900/50 hover:border-teal-500 transition-all disabled:opacity-50"
+            >
+              {searchingCover ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  Recherche...
+                </>
+              ) : (
+                <>
+                  <Search className="w-3.5 h-3.5" />
+                  Chercher vraie couverture
+                </>
+              )}
+            </button>
+            <button
               onClick={handleGenerateNewCover}
               className="w-48 mt-2 flex items-center justify-center gap-2 border border-gray-700 rounded-lg px-3 py-2 text-xs bg-gray-900/50 text-gray-400 hover:text-white hover:border-teal-500 transition-all"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              Générer nouvelle image
+              Image aléatoire
             </button>
           </div>
           
