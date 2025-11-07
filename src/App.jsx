@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStorage } from './hooks/useStorage';
+import { useSupabaseBooks } from './hooks/useSupabaseBooks';
 import Header from './components/Header';
 import Stats from './components/Stats';
 import SearchBar from './components/SearchBar';
@@ -10,29 +10,53 @@ import AddBookModal from './components/AddBookModal';
 import BookDetailModal from './components/BookDetailModal';
 
 export default function App() {
-  const [books, setBooks, loading] = useStorage('books-collection', []);
+  const {
+    books,
+    loading,
+    error,
+    addBook,
+    updateBook,
+    deleteBook,
+    importBooks,
+    getStats
+  } = useSupabaseBooks();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
 
-  const addBook = (book) => {
-    const newBook = { ...book, id: Date.now() };
-    setBooks([...books, newBook]);
-    setShowAddModal(false);
+  const handleAddBook = async (book) => {
+    const result = await addBook(book);
+    if (result.success) {
+      setShowAddModal(false);
+    } else {
+      alert('Erreur lors de l\'ajout : ' + result.error);
+    }
   };
 
-  const updateBook = (bookId, updates) => {
-    setBooks(books.map(book => book.id === bookId ? { ...book, ...updates } : book));
+  const handleUpdateBook = async (bookId, updates) => {
+    const result = await updateBook(bookId, updates);
+    if (!result.success) {
+      alert('Erreur lors de la mise à jour : ' + result.error);
+    }
   };
 
-  const deleteBook = (bookId) => {
-    setBooks(books.filter(book => book.id !== bookId));
+  const handleDeleteBook = async (bookId) => {
+    const result = await deleteBook(bookId);
+    if (!result.success) {
+      alert('Erreur lors de la suppression : ' + result.error);
+    }
   };
 
-  const importBooks = (newBooks) => {
-    setBooks([...books, ...newBooks]);
+  const handleImportBooks = async (newBooks) => {
+    const result = await importBooks(newBooks);
+    if (result.success) {
+      setShowImportModal(false);
+    } else {
+      alert('Erreur lors de l\'import : ' + result.error);
+    }
   };
 
   const filteredBooks = books.filter(book => {
@@ -42,17 +66,32 @@ export default function App() {
     return matchesSearch && matchesTab;
   });
 
-  const stats = {
-    total: books.length,
-    finished: books.filter(b => b.status === 'finished').length,
-    reading: books.filter(b => b.status === 'reading').length,
-    stopped: books.filter(b => b.status === 'stopped').length
-  };
+  const stats = getStats();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black">
-        <div className="text-white text-2xl animate-pulse">Chargement...</div>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-white text-2xl animate-pulse">Chargement de votre bibliothèque...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="text-center p-8 bg-red-900/20 border border-red-500 rounded-2xl">
+          <div className="text-red-400 text-xl mb-2">⚠️ Erreur de connexion</div>
+          <div className="text-gray-300">{error}</div>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+          >
+            Réessayer
+          </button>
+        </div>
       </div>
     );
   }
@@ -83,14 +122,14 @@ export default function App() {
       {showImportModal && (
         <ImportModal 
           onClose={() => setShowImportModal(false)}
-          onImport={importBooks}
+          onImport={handleImportBooks}
         />
       )}
 
       {showAddModal && (
         <AddBookModal 
           onClose={() => setShowAddModal(false)}
-          onAdd={addBook}
+          onAdd={handleAddBook}
         />
       )}
 
@@ -98,8 +137,8 @@ export default function App() {
         <BookDetailModal 
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
-          onUpdate={updateBook}
-          onDelete={deleteBook}
+          onUpdate={handleUpdateBook}
+          onDelete={handleDeleteBook}
         />
       )}
     </div>
