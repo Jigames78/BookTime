@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, AlertCircle, CheckCircle, RotateCcw, X } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL;
 const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export default function UndoImportModal({ onClose }) {
   const [recentBooks, setRecentBooks] = useState([]);
@@ -20,6 +17,10 @@ export default function UndoImportModal({ onClose }) {
   const loadRecentBooks = async () => {
     try {
       setLoading(true);
+      
+      // Utiliser le client Supabase importé
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
       
       const { data, error } = await supabase
         .from('books')
@@ -78,6 +79,10 @@ export default function UndoImportModal({ onClose }) {
     let deleted = 0;
 
     try {
+      // Utiliser le client Supabase
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+      
       for (const book of group) {
         try {
           const { error } = await supabase

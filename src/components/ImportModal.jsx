@@ -10,7 +10,6 @@ export default function ImportModal({ onClose, onImport }) {
     const newBooks = parseImportText(importText, importStatus);
     if (newBooks.length > 0) {
       onImport(newBooks);
-      onClose();
     }
   };
 
@@ -25,24 +24,35 @@ export default function ImportModal({ onClose, onImport }) {
         </div>
         
         <div className="space-y-5">
-          <select
-            value={importStatus}
-            onChange={(e) => setImportStatus(e.target.value)}
-            className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
-          >
-            <option value="finished">Terminés</option>
-            <option value="reading">En cours</option>
-            <option value="stopped">Arrêtés</option>
-            <option value="autre">Autre</option>
-          </select>
+          <div>
+            <label className="text-gray-400 text-sm mb-2 block">Statut des livres à importer</label>
+            <select
+              value={importStatus}
+              onChange={(e) => setImportStatus(e.target.value)}
+              className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white"
+            >
+              <option value="finished">Terminés</option>
+              <option value="reading">En cours</option>
+              <option value="stopped">Arrêtés</option>
+            </select>
+          </div>
 
-          <textarea
-            value={importText}
-            onChange={(e) => setImportText(e.target.value)}
-            placeholder="Solo Leveling ep 179 End&#10;Nano Machine ep 212&#10;Tower of God&#10;..."
-            rows={15}
-            className="w-full border border-gray-700 rounded-xl px-4 py-3 font-mono text-sm bg-gray-900/50 text-white placeholder-gray-500"
-          />
+          <div>
+            <label className="text-gray-400 text-sm mb-2 block">Liste des livres (un par ligne)</label>
+            <textarea
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              placeholder="Solo Leveling ep 179 End&#10;Nano Machine ep 212&#10;Tower of God&#10;..."
+              rows={15}
+              className="w-full border border-gray-700 rounded-xl px-4 py-3 font-mono text-sm bg-gray-900/50 text-white placeholder-gray-500"
+            />
+          </div>
+
+          <div className="p-4 bg-teal-900/20 border border-teal-700 rounded-xl">
+            <p className="text-sm text-teal-300">
+              ✨ Les couvertures seront recherchées automatiquement pour chaque livre
+            </p>
+          </div>
           
           <button
             onClick={handleImport}
@@ -50,7 +60,7 @@ export default function ImportModal({ onClose, onImport }) {
             className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed hover:from-green-500 hover:to-emerald-500 transition-all"
             style={{ boxShadow: '0 0 30px rgba(16, 185, 129, 0.5)' }}
           >
-            Importer
+            Importer ({importText.split('\n').filter(l => l.trim()).length} livres)
           </button>
         </div>
       </div>
