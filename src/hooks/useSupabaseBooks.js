@@ -81,57 +81,34 @@ export const useSupabaseBooks = () => {
     }
   };
 
-  // 📦 Import multiple avec mise à jour des couvertures en arrière-plan
+  // 📦 Import multiple avec recherche automatique des couvertures
   const importBooks = async (newBooks) => {
     try {
-      // Insérer les livres avec des couvertures temporaires
+      console.log(`🔄 Import de ${newBooks.length} livres...`);
+      
+      // Chercher les couvertures pour chaque livre
+      const booksWithCovers = await Promise.all(
+        newBooks.map(async (book) => {
+          console.log(`🔍 Recherche couverture pour: ${book.title}`);
+          const cover = await getCoverUrl(book.title);
+          return { ...book, cover };
+        })
+      );
+
+      // Insérer tous les livres avec leurs couvertures
       const { data, error } = await supabase
         .from('books')
-        .insert(newBooks)
+        .insert(booksWithCovers)
         .select();
 
       if (error) throw error;
 
-      // Ajouter immédiatement les livres à l'interface
       setBooks([...data, ...books]);
-
-      // Mettre à jour les couvertures en arrière-plan
-      updateCoversInBackground(data);
+      console.log(`✅ ${data.length} livres importés avec succès !`);
 
       return handleSupabaseSuccess(data);
     } catch (err) {
       return handleSupabaseError(err);
-    }
-  };
-
-  // 🖼️ Mettre à jour les couvertures en arrière-plan
-  const updateCoversInBackground = async (booksToUpdate) => {
-    console.log(`🔄 Mise à jour de ${booksToUpdate.length} couvertures en arrière-plan...`);
-    
-    for (const book of booksToUpdate) {
-      // Chercher une vraie couverture
-      const realCover = await getCoverUrl(book.title);
-      
-      // Si on a trouvé une meilleure couverture, mettre à jour
-      if (realCover && realCover !== book.cover) {
-        try {
-          await supabase
-            .from('books')
-            .update({ cover: realCover })
-            .eq('id', book.id);
-          
-          // Mettre à jour localement aussi
-          setBooks(prevBooks => 
-            prevBooks.map(b => 
-              b.id === book.id ? { ...b, cover: realCover } : b
-            )
-          );
-          
-          console.log(`✅ Couverture mise à jour pour: ${book.title}`);
-        } catch (err) {
-          console.error(`❌ Erreur mise à jour couverture pour ${book.title}:`, err);
-        }
-      }
     }
   };
 

@@ -1,4 +1,4 @@
-import { getCoverUrlSync, updateCoverAsync } from './imageGenerator';
+import { getCoverUrl } from './imageGenerator';
 
 export const parseImportText = (importText, importStatus) => {
   const lines = importText.split('\n');
@@ -25,20 +25,15 @@ export const parseImportText = (importText, importStatus) => {
     
     if (title) {
       const book = {
-        // ❌ NE PAS INCLURE d'id ici - Supabase le génère automatiquement
         title,
         episode: episode || '',
         site: '',
         status: importStatus,
-        cover: getCoverUrlSync(title), // Image temporaire
+        cover: '', // Sera rempli par le hook
         rating: 0,
         author: '',
         genre: ''
       };
-      
-      // Chercher la vraie couverture en arrière-plan
-      // Note: Ceci ne fonctionnera plus car on n'a pas encore l'ID
-      // On laisse juste l'image temporaire
       
       newBooks.push(book);
     }

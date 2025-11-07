@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, AlertCircle, CheckCircle, RotateCcw, X } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL;
 const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export default function UndoImportModal({ onClose }) {
   const [recentBooks, setRecentBooks] = useState([]);
@@ -17,17 +20,19 @@ export default function UndoImportModal({ onClose }) {
   const loadRecentBooks = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/books?select=*&order=created_at.desc&limit=50`, {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`
-        }
-      });
       
-      const data = await response.json();
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (error) throw error;
+      
       const groups = groupByMinute(data || []);
       setRecentBooks(groups);
     } catch (error) {
+      console.error('Erreur:', error);
       showMessage('Erreur de chargement', 'error');
     } finally {
       setLoading(false);
@@ -75,20 +80,16 @@ export default function UndoImportModal({ onClose }) {
     try {
       for (const book of group) {
         try {
-          const response = await fetch(`${SUPABASE_URL}/rest/v1/books?id=eq.${book.id}`, {
-            method: 'DELETE',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json'
-            }
-          });
+          const { error } = await supabase
+            .from('books')
+            .delete()
+            .eq('id', book.id);
 
-          if (response.ok) {
+          if (!error) {
             deleted++;
           }
         } catch (error) {
-          console.error('Erreur:', error);
+          console.error('Erreur suppression:', error);
         }
       }
 

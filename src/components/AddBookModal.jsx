@@ -19,11 +19,8 @@ export default function AddBookModal({ onClose, onAdd }) {
     if (newBook.title) {
       setSearching(true);
       
-      // Si pas d'image fournie, chercher automatiquement
-      let coverUrl = newBook.cover;
-      if (!coverUrl) {
-        coverUrl = await getCoverUrl(newBook.title);
-      }
+      // Toujours chercher automatiquement la vraie couverture
+      const coverUrl = await getCoverUrl(newBook.title);
       
       onAdd({
         ...newBook,
@@ -66,14 +63,6 @@ export default function AddBookModal({ onClose, onAdd }) {
             onChange={(e) => setNewBook({...newBook, episode: e.target.value})}
             className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white placeholder-gray-500"
           />
-          <input
-            type="text"
-            placeholder="URL de l'image (optionnel - auto si vide)"
-            value={newBook.cover}
-            onChange={(e) => setNewBook({...newBook, cover: e.target.value})}
-            className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white placeholder-gray-500 text-sm"
-          />
-          <p className="text-xs text-gray-500">💡 Laissez vide pour rechercher automatiquement</p>
           
           <select
             value={newBook.status}
@@ -94,6 +83,10 @@ export default function AddBookModal({ onClose, onAdd }) {
             onChange={(e) => setNewBook({...newBook, rating: parseInt(e.target.value) || 0})}
             className="w-full border border-gray-700 rounded-xl px-4 py-3 bg-gray-900/50 text-white placeholder-gray-500"
           />
+          
+          <div className="p-3 bg-teal-900/20 border border-teal-700 rounded-xl">
+            <p className="text-xs text-teal-300">✨ La couverture sera recherchée automatiquement sur AniList et Google Books</p>
+          </div>
           
           <button
             onClick={handleAdd}
