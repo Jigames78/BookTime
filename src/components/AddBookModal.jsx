@@ -83,6 +83,7 @@ export default function AddBookModal({ onClose, onAdd }) {
             <option value="reading">En cours</option>
             <option value="finished">Terminé</option>
             <option value="stopped">Arrêté</option>
+            <option value="autre">Autre</option>
           </select>
           <input
             type="number"

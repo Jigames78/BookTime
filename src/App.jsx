@@ -62,7 +62,19 @@ export default function App() {
   const filteredBooks = books.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (book.author && book.author.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesTab = activeTab === 'all' || book.status === activeTab;
+    
+    // Si onglet "Autre", montrer seulement les "autre"
+    if (activeTab === 'autre') {
+      return matchesSearch && book.status === 'autre';
+    }
+    
+    // Si onglet "Tous", exclure les "autre"
+    if (activeTab === 'all') {
+      return matchesSearch && book.status !== 'autre';
+    }
+    
+    // Sinon filtrer normalement par statut
+    const matchesTab = book.status === activeTab;
     return matchesSearch && matchesTab;
   });
 

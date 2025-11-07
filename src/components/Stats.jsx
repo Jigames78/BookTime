@@ -5,11 +5,12 @@ export default function Stats({ stats }) {
     { label: 'Total', value: stats.total, color: '#6b7280' },
     { label: 'Terminés', value: stats.finished, color: '#22c55e' },
     { label: 'En cours', value: stats.reading, color: '#3b82f6' },
-    { label: 'Arrêtés', value: stats.stopped, color: '#ef4444' }
+    { label: 'Arrêtés', value: stats.stopped, color: '#ef4444' },
+    { label: 'Autre', value: stats.autre, color: '#f59e0b' }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
       {statsData.map((stat, i) => (
         <div 
           key={i} 

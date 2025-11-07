@@ -109,6 +109,7 @@ export default function BookDetailModal({ book, onClose, onUpdate, onDelete }) {
                     <option value="reading">En cours</option>
                     <option value="finished">Terminé</option>
                     <option value="stopped">Arrêté</option>
+                    <option value="autre">Autre</option>
                   </select>
                 </div>
 

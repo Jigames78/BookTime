@@ -5,7 +5,8 @@ export default function FilterTabs({ activeTab, onTabChange }) {
     { key: 'all', label: 'Tous', color: '#6b7280' },
     { key: 'reading', label: 'En cours', color: '#3b82f6' },
     { key: 'finished', label: 'Terminés', color: '#22c55e' },
-    { key: 'stopped', label: 'Arrêtés', color: '#ef4444' }
+    { key: 'stopped', label: 'Arrêtés', color: '#ef4444' },
+    { key: 'autre', label: 'Autre', color: '#f59e0b' }
   ];
 
   return (

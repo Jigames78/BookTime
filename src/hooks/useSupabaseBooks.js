@@ -161,7 +161,8 @@ export const useSupabaseBooks = () => {
     total: books.length,
     finished: books.filter(b => b.status === 'finished').length,
     reading: books.filter(b => b.status === 'reading').length,
-    stopped: books.filter(b => b.status === 'stopped').length
+    stopped: books.filter(b => b.status === 'stopped').length,
+    autre: books.filter(b => b.status === 'autre').length
   });
 
   // 🔄 Charger au montage

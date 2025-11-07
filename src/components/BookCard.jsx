@@ -7,6 +7,7 @@ export default function BookCard({ book, onClick }) {
       case 'finished': return <Check className="w-4 h-4 text-white" />;
       case 'reading': return <Clock className="w-4 h-4 text-white" />;
       case 'stopped': return <XCircle className="w-4 h-4 text-white" />;
+      case 'autre': return <Star className="w-4 h-4 text-white" />;
       default: return null;
     }
   };
@@ -16,6 +17,7 @@ export default function BookCard({ book, onClick }) {
       case 'finished': return { bg: 'bg-gradient-to-br from-emerald-500 to-green-600', shadow: '0 0 20px rgba(16, 185, 129, 0.8)' };
       case 'reading': return { bg: 'bg-gradient-to-br from-blue-500 to-indigo-600', shadow: '0 0 20px rgba(59, 130, 246, 0.8)' };
       case 'stopped': return { bg: 'bg-gradient-to-br from-red-500 to-rose-600', shadow: '0 0 20px rgba(239, 68, 68, 0.8)' };
+      case 'autre': return { bg: 'bg-gradient-to-br from-amber-500 to-orange-600', shadow: '0 0 20px rgba(245, 158, 11, 0.8)' };
       default: return { bg: 'bg-gray-500', shadow: 'none' };
     }
   };
