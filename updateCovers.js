@@ -187,8 +187,8 @@ async function updateAllCovers() {
         stats.failed++;
       }
 
-      // ⏱️ Pause pour éviter le rate limiting (500ms)
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // ⏱️ Pause pour éviter le rate limiting (2 secondes pour être sûr)
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
     // 📊 Afficher les résultats
