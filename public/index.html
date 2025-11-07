@@ -1,35 +1,42 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#14b8a6" />
-    <meta
-      name="description"
-      content="BookTime - Gérez votre bibliothèque de lectures, webtoons, mangas et plus encore"
-    />
-    
-    <!-- TON LOGO ICI 👇 -->
-    <link rel="icon" href="%PUBLIC_URL%/mon-logo.png" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/mon-logo.png" />
-
-    <title>BookTime - Ma bibliothèque</title>
-
-    <!-- Tailwind CSS (Pour production, installez-le via npm) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      // Supprime l'avertissement de Tailwind CDN
-      if (window.console) {
-        const originalWarn = console.warn;
-        console.warn = function(...args) {
-          if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
-            return;
-          }
-          originalWarn.apply(console, args);
-        };
-      }
-    </script>
-  </head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#14b8a6" />
+  <meta name="description" content="BookTime - Gérez votre bibliothèque de lectures, webtoons, mangas et plus encore" />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  
+  <!-- Favicons -->
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+  
+  <!-- iOS Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BookTime" />
+  
+  <!-- Android -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  
+  <title>BookTime - Ma bibliothèque</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (window.console) {
+      const originalWarn = console.warn;
+      console.warn = function(...args) {
+        if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+          return;
+        }
+        originalWarn.apply(console, args);
+      };
+    }
+  </script>
+</head>
 
   <body class="bg-gray-900 text-white">
     <noscript>Vous devez activer JavaScript pour utiliser cette application.</noscript>
