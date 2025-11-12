@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useSupabaseBooks } from './hooks/useSupabaseBooks';
+import LoginPage from './components/LoginPage';
 import Header from './components/Header';
 import Stats from './components/Stats';
 import SearchBar from './components/SearchBar';
@@ -8,9 +10,11 @@ import BookGrid from './components/BookGrid';
 import ImportModal from './components/ImportModal';
 import AddBookModal from './components/AddBookModal';
 import BookDetailModal from './components/BookDetailModal';
-import UndoImportModal from './components/UndoImportModal'; // ← NOUVEAU
+import UndoImportModal from './components/UndoImportModal';
 
-export default function App() {
+function AppContent() {
+  const { user, loading: authLoading, login, logout } = useAuth();
+  
   const {
     books,
     loading,
@@ -26,9 +30,27 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [showUndoModal, setShowUndoModal] = useState(false); // ← NOUVEAU
+  const [showUndoModal, setShowUndoModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
 
+  // Attendre la vérification de l'authentification
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-white text-2xl animate-pulse">Vérification de la session...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Afficher la page de connexion si non connecté
+  if (!user) {
+    return <LoginPage onLogin={login} />;
+  }
+
+  // Handlers
   const handleAddBook = async (book) => {
     const result = await addBook(book);
     if (result.success) {
@@ -112,7 +134,9 @@ export default function App() {
       <Header 
         onImportClick={() => setShowImportModal(true)}
         onAddClick={() => setShowAddModal(true)}
-        onUndoClick={() => setShowUndoModal(true)} // ← NOUVEAU
+        onUndoClick={() => setShowUndoModal(true)}
+        onLogout={logout}
+        username={user?.user_metadata?.username || user?.email?.split('@')[0]}
       />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -145,7 +169,7 @@ export default function App() {
         />
       )}
 
-      {showUndoModal && ( // ← NOUVEAU
+      {showUndoModal && (
         <UndoImportModal 
           onClose={() => setShowUndoModal(false)}
         />
@@ -160,5 +184,13 @@ export default function App() {
         />
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

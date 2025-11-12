@@ -7,13 +7,23 @@ export const useSupabaseBooks = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 📥 Charger tous les livres
+  // 📥 Charger tous les livres de l'utilisateur connecté
   const loadBooks = async () => {
     try {
       setLoading(true);
+      
+      // Récupérer l'utilisateur actuel
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('Utilisateur non connecté');
+      }
+
+      // Charger uniquement les livres de cet utilisateur
       const { data, error } = await supabase
         .from('books')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -27,12 +37,18 @@ export const useSupabaseBooks = () => {
     }
   };
 
-  // ➕ Ajouter un livre
+  // ➕ Ajouter un livre avec user_id automatique
   const addBook = async (book) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('Utilisateur non connecté');
+      }
+
       const { data, error } = await supabase
         .from('books')
-        .insert([book])
+        .insert([{ ...book, user_id: user.id }])
         .select()
         .single();
 
@@ -86,12 +102,18 @@ export const useSupabaseBooks = () => {
     try {
       console.log(`🔄 Import de ${newBooks.length} livres...`);
       
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('Utilisateur non connecté');
+      }
+      
       // Chercher les couvertures pour chaque livre
       const booksWithCovers = await Promise.all(
         newBooks.map(async (book) => {
           console.log(`🔍 Recherche couverture pour: ${book.title}`);
           const cover = await getCoverUrl(book.title);
-          return { ...book, cover };
+          return { ...book, cover, user_id: user.id };
         })
       );
 
@@ -112,17 +134,23 @@ export const useSupabaseBooks = () => {
     }
   };
 
-  // 🗑️ Tout supprimer
+  // 🗑️ Tout supprimer (pour cet utilisateur uniquement)
   const clearAllBooks = async () => {
     if (!window.confirm('Voulez-vous vraiment supprimer TOUTES vos lectures ?')) {
       return;
     }
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('Utilisateur non connecté');
+      }
+
       const { error } = await supabase
         .from('books')
         .delete()
-        .neq('id', 0);
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
