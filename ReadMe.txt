@@ -80,7 +80,9 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -moz-osx-font-smoothing: grayscSELECT id, email, encrypted_password
+FROM auth.users;
+ale;
 }
 
 .line-clamp-1 {
@@ -191,4 +193,71 @@ Pour toute question ou suggestion, n'hésitez pas à ouvrir une issue sur le pro
 
 Fait avec ❤️ et React
 
+1️⃣ Table auth.users
 
+| Colonne                | Type        | Nullable | Description                         |
+| ---------------------- | ----------- | -------- | ----------------------------------- |
+| id                     | uuid        | NO       | Identifiant unique                  |
+| aud                    | text        | NO       | Audience (`authenticated` ou autre) |
+| role                   | text        | NO       | Rôle de l’utilisateur               |
+| email                  | text        | YES      | Email de l’utilisateur              |
+| encrypted_password     | text        | YES      | Mot de passe crypté                 |
+| email_confirmed_at     | timestamptz | YES      | Date de confirmation de l’email     |
+| phone                  | text        | YES      | Numéro de téléphone                 |
+| phone_confirmed_at     | timestamptz | YES      | Date de confirmation du téléphone   |
+| confirmation_token     | text        | YES      | Jeton de confirmation               |
+| recovery_token         | text        | YES      | Jeton de récupération               |
+| email_change_token_new | text        | YES      | Jeton pour changer d’email          |
+| email_change           | text        | YES      | Nouvel email en cours de validation |
+| created_at             | timestamptz | NO       | Date de création                    |
+| updated_at             | timestamptz | NO       | Date de mise à jour                 |
+| last_sign_in_at        | timestamptz | YES      | Dernière connexion                  |
+| raw_user_meta_data     | jsonb       | YES      | Données brutes personnalisées       |
+| user_metadata          | jsonb       | YES      | Données personnalisées              |
+| factor                 | jsonb       | YES      | Auth multi-facteurs                 |
+
+2️⃣ Table auth.identities
+
+| Colonne         | Type           | Nullable | Description                                            |
+| --------------- | -------------- | -------- | ------------------------------------------------------ |
+| id              | uuid           | NO       | Identifiant unique                                     |
+| user_id         | uuid           | NO       | Référence `auth.users.id`                              |
+| provider        | text           | NO       | Nom du provider (`email`, `google`, `github`)          |
+| provider_id     | text           | NO       | Identifiant du provider (souvent `email`)              |
+| identity_data   | jsonb          | NO       | Données du provider (ex: `{sub: "...", email: "..."}`) |
+| email           | text GENERATED | NO       | `lower(identity_data->>'email')`                       |
+| last_sign_in_at | timestamptz    | YES      | Dernière connexion                                     |
+| created_at      | timestamptz    | YES      | Date de création                                       |
+| updated_at      | timestamptz    | YES      | Date de mise à jour                                    |
+
+3️⃣ Table auth.refresh_tokens
+
+| Colonne     | Type        | Nullable | Description                  |
+| ----------- | ----------- | -------- | ---------------------------- |
+| id          | uuid        | NO       | Identifiant du refresh token |
+| user_id     | uuid        | NO       | Référence `auth.users.id`    |
+| token       | text        | NO       | Token crypté                 |
+| created_at  | timestamptz | NO       | Création du token            |
+| revoked_at  | timestamptz | YES      | Date de révocation           |
+| replaced_by | uuid        | YES      | Token qui remplace celui-ci  |
+| expires_at  | timestamptz | YES      | Expiration                   |
+
+4️⃣ Table auth.mfa (multi-factor authentication)
+
+| Colonne      | Type        | Nullable | Description               |
+| ------------ | ----------- | -------- | ------------------------- |
+| id           | uuid        | NO       | Identifiant MFA           |
+| user_id      | uuid        | NO       | Référence `auth.users.id` |
+| factor_type  | text        | NO       | Type (`totp`, `sms`, ...) |
+| factor_data  | jsonb       | YES      | Données du facteur        |
+| created_at   | timestamptz | NO       | Création                  |
+| updated_at   | timestamptz | NO       | Mise à jour               |
+| confirmed_at | timestamptz | YES      | Date de confirmation      |
+
+Relations principales
+
+auth.identities.user_id → auth.users.id (ON DELETE CASCADE)
+
+auth.refresh_tokens.user_id → auth.users.id (ON DELETE CASCADE)
+
+auth.mfa.user_id → auth.users.id (ON DELETE CASCADE)

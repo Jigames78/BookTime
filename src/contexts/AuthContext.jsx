@@ -20,8 +20,19 @@ export const AuthProvider = ({ children }) => {
     checkUser();
 
     // Écouter les changements d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event);
+      
+      if (event === 'SIGNED_IN') {
+        setUser(session?.user ?? null);
+        console.log('✅ Utilisateur connecté:', session?.user?.email);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        console.log('👋 Utilisateur déconnecté');
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('🔄 Token rafraîchi');
+      }
+      
       setLoading(false);
     });
 
@@ -31,10 +42,25 @@ export const AuthProvider = ({ children }) => {
   // Vérifier l'utilisateur actuel
   const checkUser = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      console.log('🔍 Vérification de la session...');
+      
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('❌ Erreur vérification session:', error);
+        throw error;
+      }
+      
+      if (session) {
+        console.log('✅ Session trouvée:', session.user.email);
+        setUser(session.user);
+      } else {
+        console.log('ℹ️ Aucune session active');
+        setUser(null);
+      }
     } catch (error) {
-      console.error('Erreur vérification session:', error);
+      console.error('❌ Erreur vérification session:', error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -43,6 +69,8 @@ export const AuthProvider = ({ children }) => {
   // Connexion avec identifiant et mot de passe
   const login = async (username, password) => {
     try {
+      console.log('🔐 Tentative de connexion pour:', username);
+      
       // L'email fictif est construit : username@booktime.local
       const email = `${username}@booktime.local`;
       
@@ -51,17 +79,29 @@ export const AuthProvider = ({ children }) => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erreur de connexion:', error.message);
+        throw error;
+      }
 
+      console.log('✅ Connexion réussie:', data.user.email);
       setUser(data.user);
+      
       return { success: true, user: data.user };
     } catch (error) {
-      console.error('Erreur de connexion:', error);
+      console.error('❌ Erreur de connexion:', error);
+      
+      let errorMessage = error.message;
+      
+      if (error.message === 'Invalid login credentials') {
+        errorMessage = 'Identifiant ou mot de passe incorrect';
+      } else if (error.message?.includes('Email not confirmed')) {
+        errorMessage = 'Email non confirmé';
+      }
+      
       return { 
         success: false, 
-        error: error.message === 'Invalid login credentials' 
-          ? 'Identifiant ou mot de passe incorrect' 
-          : error.message 
+        error: errorMessage
       };
     }
   };
@@ -69,12 +109,18 @@ export const AuthProvider = ({ children }) => {
   // Déconnexion
   const logout = async () => {
     try {
+      console.log('👋 Déconnexion en cours...');
+      
       const { error } = await supabase.auth.signOut();
+      
       if (error) throw error;
+      
       setUser(null);
+      console.log('✅ Déconnexion réussie');
+      
       return { success: true };
     } catch (error) {
-      console.error('Erreur de déconnexion:', error);
+      console.error('❌ Erreur de déconnexion:', error);
       return { success: false, error: error.message };
     }
   };
@@ -84,6 +130,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
+    checkUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
