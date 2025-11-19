@@ -1,5 +1,3 @@
-import { getCoverUrl } from './imageGenerator';
-
 export const parseImportText = (importText, importStatus) => {
   const lines = importText.split('\n');
   const newBooks = [];

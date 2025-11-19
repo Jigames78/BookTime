@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Trash2, AlertCircle, CheckCircle, RotateCcw, X } from 'lucide-react';
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL;
@@ -10,15 +10,10 @@ export default function UndoImportModal({ onClose }) {
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState(null);
 
-  useEffect(() => {
-    loadRecentBooks();
-  }, []);
-
-  const loadRecentBooks = async () => {
+  const loadRecentBooks = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Utiliser le client Supabase importé
       const { createClient } = await import('@supabase/supabase-js');
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
       
@@ -38,7 +33,11 @@ export default function UndoImportModal({ onClose }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadRecentBooks();
+  }, [loadRecentBooks]);
 
   const groupByMinute = (books) => {
     const groups = [];
@@ -79,7 +78,6 @@ export default function UndoImportModal({ onClose }) {
     let deleted = 0;
 
     try {
-      // Utiliser le client Supabase
       const { createClient } = await import('@supabase/supabase-js');
       const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
       
